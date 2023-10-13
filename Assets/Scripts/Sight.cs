@@ -1,0 +1,77 @@
+using UnityEngine;
+
+public class Sight : Sense
+{
+    public float fieldOfView = 60f;
+    public float fieldOfViewDistance = 10f;
+    public LayerMask layerMask;
+
+    private Transform playerTrans;
+    private Vector3 directionToPlayer;
+    private float halfFOV;
+
+    protected override void Initialize()
+    {
+        // Find the player!
+        playerTrans = GameObject.FindGameObjectWithTag("Player").transform;
+
+        halfFOV = fieldOfView * 0.5f;
+    }
+
+
+    protected override void UpdateSense()
+    {
+        halfFOV = fieldOfView * 0.5f;
+        elapsedTime += Time.deltaTime;
+
+        if (elapsedTime >= detectionRate)
+        {
+            elapsedTime = 0f;
+            DetectAspectWithOverlapSphere();
+        }
+
+    }
+
+    private void DetectAspectWithOverlapSphere()
+    {
+
+        Collider[] objectsWithinSight = 
+            Physics.OverlapSphere(transform.position, fieldOfViewDistance, layerMask);    
+
+        foreach (Collider seen in objectsWithinSight)
+        {
+            Vector3 directionToSeen = seen.transform.position - transform.position;
+
+            // Check if the collider is within FOV
+            if (Vector3.Angle(transform.forward, directionToSeen) <= halfFOV)
+            {
+                Aspect aspect = seen.GetComponentInParent<Aspect>();
+                if (aspect != null)
+                {
+                    if (aspect.aspectName == aspectName)
+                    {
+                        gameManager.canSee = true;
+                        Debug.Log("Sight: I can see an enemy!");
+                    }
+                } else if (aspect == null)
+                {
+                    gameManager.canSee = false;
+                }
+            }
+        }   
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Quaternion leftRayRotation = Quaternion.AngleAxis(-halfFOV, Vector3.up);
+        Quaternion rightRayRotation = Quaternion.AngleAxis(halfFOV, Vector3.up);
+        Vector3 leftRayDirection = leftRayRotation * transform.forward;
+        Vector3 rightRayDirection = rightRayRotation * transform.forward;
+        Gizmos.DrawRay(transform.position, leftRayDirection * fieldOfViewDistance);
+        Gizmos.DrawRay(transform.position, rightRayDirection * fieldOfViewDistance);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, transform.forward * fieldOfViewDistance);
+    }
+}
