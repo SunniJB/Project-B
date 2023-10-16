@@ -1,46 +1,76 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private Vector3 direction, currentPosition;
-    [SerializeField] private float speed;
+    public Transform targetMarker;
+
+    public float movementSpeed, rotationSpeed, stopDist, minDistToAvoid, force;
+
+    public GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        direction = Vector3.forward;
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        /*
+        movementSpeed = 5f;
+        rotationSpeed = 15f;
+        stopDist = 2f;
+        minDistToAvoid = 6f;
+        force = 1f;
+        */
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+        // Stop once the player is close enough to the target marker
+        if (Vector3.Distance(transform.position, targetMarker.position) < stopDist)
         {
-            direction = Vector3.left;
-            Move();
+            gameManager.currentlyWalking = false;
+            return;
         }
-        else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-        {
-            direction = Vector3.right;
-            Move();
-        }
-        else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
-        {
-            direction = Vector3.forward;
-            Move();
-        }
-        else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
-        {
-            direction = Vector3.back;
-            Move();
-        }
+
+        // Calculate the direction vector from the current position to the target marker
+        Vector3 targetPosition = targetMarker.position;
+        targetPosition.y = transform.position.y;
+        Vector3 directionToTarget = (targetPosition - transform.position).normalized;
+
+        // Avoid hitting any obstacles
+        AvoidObstacles(ref directionToTarget);
+
+        // Build a quaternion for the new rotation towards the target marker
+        Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+
+        // Move and rotate with interpolation
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        transform.Translate(movementSpeed * Time.deltaTime * Vector3.forward);
     }
 
-    private void Move()
+
+    /***********
+     * AvoidObstacles
+     * Using colliders without collisions
+     * 
+     */
+    private void AvoidObstacles(ref Vector3 dir)
     {
-        currentPosition = transform.position;
-        transform.Translate(direction * speed);
-    }
+        RaycastHit hitInfo;
+
+        // Only detect obstacles - on the obstacle layer
+        int layerMask = 1 << 6;
+
+        // Check if there are any obstacles close to the front of this object
+        if (Physics.Raycast(transform.position + new Vector3(0f, 1f, 0.5f), transform.forward, out hitInfo, minDistToAvoid, layerMask))
+        {
+            // Get the normal vector of the raycast's hitpoint 
+            Vector3 hitNormal = hitInfo.normal;
+            hitNormal.y = 0f;
+
+            // create new direction for object to move in, by adding "force" to the gameobject's 
+            // current forward direction - based on the hitpoint normal
+            dir = transform.forward + hitNormal * force;
+        }
+    } 
+
 }
