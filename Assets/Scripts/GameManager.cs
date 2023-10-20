@@ -42,11 +42,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void NewWall(int start = 1)
+    public void NewWall(int start = 1) //Procedurally generate walls
     {
         int wallProb;
 
-        if (start > 0)
+        if (start > 0) // Make it way more likely that breakable walls spawn
         {
             wallProb = Random.Range(0, 100);
         }
@@ -57,11 +57,11 @@ public class GameManager : MonoBehaviour
         }
 
 
-        int wallID = 0; //Normal wall
+        int wallID = 0; //Breakable wall
 
         if (wallProb < 10)
         {
-            // Breakable wall
+            // Normal wall
             wallID = 2;
         }
         else if (wallProb > 9 && wallProb < 25)
@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
 
         GameObject newWallObject = Instantiate(wallPrefabs[wallID], NewWallLocation(), Quaternion.identity);
 
-        wallPile.Add(newWallObject.transform);
+        wallPile.Add(newWallObject.transform); //Update the list of walls currenly in the scene
 
         if (wallID > 0)
         {
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private Vector3 NewWallLocation()
+    private Vector3 NewWallLocation() //Make sure walls don't spawn on top of each other
     {
         Vector3 newLocation;
         do
@@ -103,5 +103,11 @@ public class GameManager : MonoBehaviour
             }
         }
         return distanceTooClose;
+    }
+    public void RemoveWall(Transform t)
+    {
+        wallPile.Remove(t);
+        Destroy(t.gameObject);
+        NewWall();
     }
 }
