@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AgentController : MonoBehaviour
+public class EnemyController : MonoBehaviour
 {
     public float movementSpeed = 5f;
     public float rotationSpeed = 5f;

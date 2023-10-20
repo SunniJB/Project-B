@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
 
     public void Shoot()
     {
+        GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("PlayerShoot");
         float spawnDistance = 1f;
         GameObject ball = Instantiate(projectile, transform.localPosition + spawnDistance * Vector3.forward, transform.rotation);
         ball.GetComponent<Projectile>().gameManager = gameManager;

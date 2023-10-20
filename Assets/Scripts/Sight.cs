@@ -10,6 +10,8 @@ public class Sight : Sense
     private Vector3 directionToPlayer;
     private float halfFOV;
 
+    public bool enemySpotted;
+
     protected override void Initialize()
     {
         // Find the player!
@@ -35,8 +37,7 @@ public class Sight : Sense
     private void DetectAspectWithOverlapSphere()
     {
 
-        Collider[] objectsWithinSight = 
-            Physics.OverlapSphere(transform.position, fieldOfViewDistance, layerMask);    
+        Collider[] objectsWithinSight = Physics.OverlapSphere(transform.position, fieldOfViewDistance, layerMask);    
 
         foreach (Collider seen in objectsWithinSight)
         {
@@ -50,28 +51,15 @@ public class Sight : Sense
                 {
                     if (aspect.aspectName == aspectName)
                     {
-                        gameManager.canSee = true;
-                        Debug.Log("Sight: I can see an enemy!");
+                        enemySpotted = true;
+                        Debug.Log("I am seeing " + aspect.gameObject.name);
                     }
                 } else if (aspect == null)
                 {
-                    gameManager.canSee = false;
+                    return;
                 }
             }
         }   
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Quaternion leftRayRotation = Quaternion.AngleAxis(-halfFOV, Vector3.up);
-        Quaternion rightRayRotation = Quaternion.AngleAxis(halfFOV, Vector3.up);
-        Vector3 leftRayDirection = leftRayRotation * transform.forward;
-        Vector3 rightRayDirection = rightRayRotation * transform.forward;
-        Gizmos.DrawRay(transform.position, leftRayDirection * fieldOfViewDistance);
-        Gizmos.DrawRay(transform.position, rightRayDirection * fieldOfViewDistance);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawRay(transform.position, transform.forward * fieldOfViewDistance);
-    }
 }

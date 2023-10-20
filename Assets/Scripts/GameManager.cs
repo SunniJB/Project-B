@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Transform> wallPile = new List<Transform>();
     [SerializeField] private List<GameObject> wallPrefabs = new List<GameObject>();
 
+    public float currentHealth, maxHealth;
+    public GameObject healthBar;
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -22,23 +25,6 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < startWalls; i++) //Chuck some walls in to start
         {
             NewWall(0);
-        }
-
-    }
-
-    private void Update()
-    {
-        PlayFootsteps();
-    }
-    public void PlayFootsteps() //Play footsteps when moving. currentlyWalking is set in the player controller and target controller.
-    {
-        if (currentlyWalking == true && audioSource.isPlaying == false)
-        {
-            audioSource.Play();
-        }
-        else if (currentlyWalking == false && audioSource.isPlaying == true)
-        {
-            audioSource.Stop();
         }
     }
 
