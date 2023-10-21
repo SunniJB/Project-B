@@ -36,7 +36,7 @@ Transform:
   m_Children:
   - {fileID: 812420809829314018}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5726788077673872544
 MeshFilter:
@@ -115,7 +115,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 36
   m_CollisionDetection: 0
 --- !u!114 &5726788077673872572
 MonoBehaviour:
@@ -131,6 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 5
   rotationSpeed: 5
+  gameManager: {fileID: 0}
 --- !u!114 &5726788077673872550
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public AudioSource audioSource;
-    public bool currentlyWalking;
-
     public bool canHear, canSee, canTouch;
 
     private float wallDistance = 3f;
@@ -15,16 +14,58 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Transform> wallPile = new List<Transform>();
     [SerializeField] private List<GameObject> wallPrefabs = new List<GameObject>();
 
-    public float currentHealth, maxHealth;
-    public GameObject healthBar;
+    public float currentHealth = 100, maxHealth, points;
+    public GameObject healthBar, pointsText;
+
+    [SerializeField] private float timeUntilEnemy, enemyTime;
+    [SerializeField] private GameObject enemyPrefab;
+
+    [SerializeField] private GameObject winCanvas, loseCanvas, pauseCanvas;
+    private bool paused = false;
+
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        Time.timeScale = 1f;
 
         for (int i = 0; i < startWalls; i++) //Chuck some walls in to start
         {
             NewWall(0);
+        }
+        currentHealth = maxHealth;
+        healthBar.GetComponent<Slider>().maxValue = maxHealth;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (paused == false) { Pause(); paused = !paused; return; }
+            if (paused == true) { Unpause(); paused = !paused; return; }
+
+        }
+
+        healthBar.GetComponent<Slider>().value = currentHealth;
+        pointsText.GetComponent<TextMeshProUGUI>().text = "Points: " + points + "/100";
+
+        timeUntilEnemy += Time.deltaTime;
+        if (timeUntilEnemy > enemyTime)
+        {
+            Instantiate(enemyPrefab, NewWallLocation(), Quaternion.identity);
+            timeUntilEnemy = 0f;
+        }
+
+        if (points >= 100)
+        {
+            GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("Win");
+            Win();
+        }
+
+        if (currentHealth <= 0)
+        {
+            GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("Death");
+            Lose();
+            Debug.Log("You lost");
         }
     }
 
@@ -95,5 +136,37 @@ public class GameManager : MonoBehaviour
         wallPile.Remove(t);
         Destroy(t.gameObject);
         NewWall();
+    }
+
+    private void Win()
+    {
+        Time.timeScale = 0f;
+        winCanvas.SetActive(true);
+    }
+
+    private void Lose()
+    {
+        Time.timeScale = 0f;
+        loseCanvas.SetActive(true);
+    }
+
+    public void Restart()
+    {
+        Time.timeScale = 1f;
+        loseCanvas.SetActive(false);
+        winCanvas.SetActive(false);
+        SceneManager.LoadScene(0);
+    }
+
+    public void Pause()
+    {
+        pauseCanvas.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void Unpause()
+    {
+        pauseCanvas.SetActive(false);
+        Time.timeScale = 1f;
     }
 }

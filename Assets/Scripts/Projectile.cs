@@ -6,6 +6,12 @@ public class Projectile : MonoBehaviour
 {
     public GameManager gameManager;
     public float timer, despawnTime = 2;
+    [SerializeField] private SoundManager soundManager;
+
+    private void Start()
+    {
+        soundManager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
+    }
 
     private void Update()
     {
@@ -20,30 +26,26 @@ public class Projectile : MonoBehaviour
     {
         if (hit.CompareTag("Breakable"))
         {
-            GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("Explosion");
+            soundManager.PlaySound("Explosion");
             hit.gameObject.GetComponent<Animator>().SetTrigger("Break");
-            StartCoroutine(LetAnimationFinish(hit)); 
+            StartCoroutine(LetAnimationFinish(hit));
+            gameManager.points += 5;
         }
         
         if (hit.CompareTag("Enemy"))
         {
-            GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("GetPoint");
+            soundManager.PlaySound("GetPoint");
             Destroy(hit.gameObject);
-            //Gain points
-        }
-
-        if (hit.CompareTag("Player"))
-        {
-            GameObject.Find("SoundManager").GetComponent<SoundManager>().PlaySound("LosePoint");
-            gameManager.currentHealth -= 10;
+            gameManager.points += 10;
         }
     }
 
     IEnumerator LetAnimationFinish(Collider other)
     {
-        Debug.Log("Waiting started");
+        Debug.Log("Waiting Started");
         yield return new WaitForSeconds(1);
+        Debug.Log("Waiting ended");
         gameManager.RemoveWall(other.gameObject.transform);
-        Debug.Log("Waiting finished");
+
     }
 }

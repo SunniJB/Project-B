@@ -56,6 +56,7 @@ public class Sight : Sense
                     }
                 } else if (aspect == null)
                 {
+                    enemySpotted = false;
                     return;
                 }
             }

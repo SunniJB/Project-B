@@ -13,6 +13,10 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] Slider volumeSlider;
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
     private void Start()
     {
         foreach (var clip in soundClips)

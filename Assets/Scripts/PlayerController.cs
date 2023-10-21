@@ -27,7 +27,6 @@ public class PlayerController : MonoBehaviour
         // Stop once the player is close enough to the target marker
         if (Vector3.Distance(transform.position, targetMarker.position) < stopDist)
         {
-            gameManager.currentlyWalking = false;
             return;
         }
 
